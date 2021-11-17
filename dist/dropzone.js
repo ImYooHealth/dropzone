@@ -488,6 +488,11 @@ var Dropzone = function (_Emitter) {
          * `b` for bytes.
          */
         dictFileSizeUnits: { tb: "TB", gb: "GB", mb: "MB", kb: "KB", b: "b" },
+
+        /**
+         * Whether to use a table view instead of a div view for file previews
+         */
+        useTableView: false,
         /**
          * Called when dropzone initialized
          * You can add event listeners here
@@ -745,7 +750,20 @@ var Dropzone = function (_Emitter) {
           }
 
           if (this.previewsContainer) {
-            file.previewElement = Dropzone.createElement(this.options.previewTemplate.trim());
+
+            let innerHTML = this.options.previewTemplate.trim();
+
+            let div = null;
+
+            if(_this2.options.useTableView) {
+              div = document.createElement("tr");
+              div.innerHTML = innerHTML;
+            }
+            else {
+              div = Dropzone.createElement(innerHTML);
+            }
+
+            file.previewElement = div;
             file.previewTemplate = file.previewElement; // Backwards compatibility
 
             this.previewsContainer.appendChild(file.previewElement);
@@ -779,8 +797,22 @@ var Dropzone = function (_Emitter) {
             }
 
             if (this.options.addRemoveLinks) {
-              file._removeLink = Dropzone.createElement("<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + this.options.dictRemoveFile + "</a>");
-              file.previewElement.appendChild(file._removeLink);
+
+              let innerHTML = "<a class=\"dz-remove\" href=\"javascript:undefined;\" data-dz-remove>" + this.options.dictRemoveFile + "</a>";
+              var element = null;
+
+              if (this.options.useTableView) {
+                let remove_container = document.createElement("td");
+                remove_container.innerHTML = innerHTML;
+                file.previewElement.appendChild(remove_container);
+                element = remove_container.childNodes[0];
+              }
+              else {
+                element = Dropzone.createElement(innerHTML);
+                file.previewElement.appendChild(element);
+              }
+
+              file._removeLink = element;
             }
 
             var removeFileEvent = function removeFileEvent(e) {
